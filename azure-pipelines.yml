@@ -34,7 +34,7 @@ jobs:
         $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageIdSuffix)"
         $manifest.Package.Properties.DisplayName = "$(packageName)$(packageNameSuffix)"
         $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)$(packageNameSuffix)"
-        $manifest.save(".\src\Terminal.Package\Package.appxmanifest")
+        $manifest.save(".\src\Terminal\Package.appxmanifest")
 
   - task: VSBuild@1
     inputs:
