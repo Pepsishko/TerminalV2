@@ -29,12 +29,12 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        [xml]$manifest= get-content ".\src\WpfCoreDemo.Package\Package.appxmanifest"
+        [xml]$manifest= get-content ".\src\Terminal.Package\Package.appxmanifest"
         $manifest.Package.Identity.Version = "$(packageVersion).$(Build.BuildId)"
         $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageIdSuffix)"
         $manifest.Package.Properties.DisplayName = "$(packageName)$(packageNameSuffix)"
         $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)$(packageNameSuffix)"
-        $manifest.save(".\src\WpfCoreDemo.Package\Package.appxmanifest")
+        $manifest.save(".\src\Terminal.Package\Package.appxmanifest")
 
   - task: VSBuild@1
     inputs:
