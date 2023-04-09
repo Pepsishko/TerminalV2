@@ -8,7 +8,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
-  msixInstallUrl: https://wugdaysdemoapp.azurewebsites.net
+  msixInstallUrl: https://172.23.115.155/
   packageVersion: 1.0.0
   packageName: 'WUG Days Demo App'
 
