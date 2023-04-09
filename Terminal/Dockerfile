@@ -1,7 +1,5 @@
-FROM php:7.0-apache
+FROM httpd:2.4 AS Base
+COPY . ./ /usr/local/apache2/htdocs/
 # Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
