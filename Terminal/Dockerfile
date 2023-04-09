@@ -1,2 +1,2 @@
-FROM nginx:latest
-COPY . ./ /usr/share/nginx/html/index.html
+FROM nanoserver/iis
+COPY . /inetpub/wwwroot/ 
