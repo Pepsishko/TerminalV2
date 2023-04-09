@@ -1,13 +1,7 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
-WORKDIR /App
-
+FROM php:7.0-apache
 # Copy everything
 COPY . ./
 # Restore as distinct layers
 RUN dotnet restore
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
-WORKDIR /App
-COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "index.html"]
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
