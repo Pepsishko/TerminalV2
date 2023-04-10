@@ -5,12 +5,19 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'x64'
-  buildConfiguration: 'Release'
-  msixInstallUrl: http://10.244.0.24
-  packageVersion: 1.0.0
-  packageName: 'WUG Days Demo App'
+- group: 'Certificate'
+- name: 'solution'
+  value: '**/*.sln'
+- name: 'buildPlatform'
+  value: 'x64'
+- name: 'buildConfiguration'
+  value: 'Release'
+- name: 'msixInstallUrl'
+  value: http://10.244.0.24
+- name: 'packageVersion'
+  value: 1.0.0
+- name: 'packageName'
+  value: 'Terminal'
 
 jobs: 
 - job: BuildMSIX
@@ -48,8 +55,7 @@ jobs:
       script: |
         Write-Host "Start adding the PFX file to the certificate store."
         $pfxpath = '$(mySecureFile.secureFilePath)'
-        echo '$(mySecureFile.secret)'
-        $password = '$(mySecureFile.secret)'      
+        $password = '$(password)'
         Add-Type -AssemblyName System.Security
         $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
         $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
