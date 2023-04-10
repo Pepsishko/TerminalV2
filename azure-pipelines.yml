@@ -39,7 +39,7 @@ jobs:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/restore /p:AppInstallerUri=$(msixInstallUrl)/$(channelName) /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/$(channelName)" /p:UapAppxPackageBuildMode=SideLoadOnly /p:GenerateAppInstallerFile=true'
+      msbuildArgs: '/restore /p:AppInstallerUri=$(msixInstallUrl)/$(channelName) /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/$(channelName)" /p:UapAppxPackageBuildMode=StoreAndSideload /p:GenerateAppInstallerFile=true /p:PackageCertificateKeyFile="Terminal_TemporaryKey.pfx" /p:PackageCertificatePassword="secret"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
