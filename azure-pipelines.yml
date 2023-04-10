@@ -76,12 +76,6 @@ jobs:
   #  inputs:
   #    command: 'build'
   #    Dockerfile: '**/Dockerfile'
-  - task: CopyFiles@2
-    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-    inputs:
-      SourceFolder: '$(system.defaultworkingdirectory)'
-      Contents: '**\bin\$(buildConfiguration)\**'
-      TargetFolder: '$(build.artifactstagingdirectory)'
 
   - task: PublishBuildArtifacts@1
     inputs:
