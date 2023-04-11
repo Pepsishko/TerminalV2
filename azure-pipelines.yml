@@ -13,7 +13,7 @@ variables:
 - name: 'buildConfiguration'
   value: 'Release'
 - name: 'msixInstallUrl'
-  value: http://10.244.0.24
+  value: http://localhost:8080
 - name: 'packageVersion'
   value: 1.0.0
 - name: 'packageName'
