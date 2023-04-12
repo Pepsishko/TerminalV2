@@ -1,4 +1,5 @@
-trigger: master
+trigger: 
+- master
 
 variables:
 - group: 'systray-pipeline' # variable group
