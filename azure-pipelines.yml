@@ -61,6 +61,13 @@ jobs:
   #  inputs:
   #    command: 'build'
   #    Dockerfile: '**/Dockerfile'
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        [xml]$appInst = get-content "$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller"
+        $appInst.AppInstaller.UpdateSettings.OnLaunch.HoursBetweenUpdateChecks="1"
+        $appInst.save("$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller")
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
