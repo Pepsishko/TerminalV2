@@ -54,7 +54,7 @@ jobs:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/restore /p:AppInstallerUri="$(msixInstallUrl)/" /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/" /p:UapAppxPackageBuildMode=StoreAndSideload /p:GenerateAppInstallerFile=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$(mySecureFile.secureFilePath)" /p:PackageCertificatePassword="$(password) /p:AppxBundle=Always"'
+      msbuildArgs: '/restore /p:AppInstallerUri="$(msixInstallUrl)/" /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/" /p:UapAppxPackageBuildMode=StoreAndSideload /p:GenerateAppInstallerFile=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$(mySecureFile.secureFilePath)" /p:PackageCertificatePassword="$(password)" /p:AppxBundle=Always'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
   #- task: Docker@2
