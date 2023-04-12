@@ -25,9 +25,9 @@ jobs:
       script: |
         [xml]$manifest= get-content "Terminal\Package.appxmanifest"
         $manifest.Package.Identity.Version = "$(packageVersion).$(Build.BuildId)"
-        $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageIdSuffix)"
-        $manifest.Package.Properties.DisplayName = "$(packageName)$(packageNameSuffix)"
-        $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)$(packageNameSuffix)"
+        $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b"
+        $manifest.Package.Properties.DisplayName = "$(packageName)"
+        $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)"
         $manifest.save("Terminal\Package.appxmanifest")
   - task: DownloadSecureFile@1
     name: mySecureFile
