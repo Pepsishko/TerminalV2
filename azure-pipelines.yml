@@ -1,80 +1,68 @@
-trigger: 
+trigger:
 - master
-
+pool:
+  vmImage: 'windows-latest'
 variables:
 - group: 'Certificate'
+- name: 'solution'
+  value: '**/*.sln'
 - name: 'buildPlatform'
   value: 'x64'
 - name: 'buildConfiguration'
-  value: 'release'
-- name: 'major'
-  value: 1
-- name: 'minor'
-  value: 0
-- name: 'build'
-  value: 0
-- name: 'revision'
-  value: $[counter('rev', 0)]
-- name: 'appxPackageDir'
-  value: '$(build.artifactStagingDirectory)\AppxPackages\\'
-- name: 'folderRepository'
-  value: 'TerminalV2'
-  
-steps:
-- task: NuGetCommand@2
-  displayName: 'Restore NuGet packages'
-  inputs:
-    command: 'restore'
-    restoreSolution: '$(Agent.BuildDirectory)\s\$(folderRepository)\TerminalV2.sln'
-    feedsToUse: 'select'
-
-- task: DownloadSecureFile@1
-  name: mySecureFile
-  displayName: 'Download CA certificate'
-  inputs:
-    secureFile: 'Terminal_TemporaryKey.pfx'
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      Write-Host "Start adding the PFX file to the certificate store."
-      $pfxpath = '$(mySecureFile.secureFilePath)'
-      $password = '$(password)'
-      Add-Type -AssemblyName System.Security
-      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-      $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
-      $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
-      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-      $store.Add($cert)
-      $store.Close()
-  displayName: 'Install PFX File'
-
-####
-#This step builds the Systray project before the package, because they are not explicitly referenced to each other.
-- task: VSBuild@1
-  inputs:
-    solution: '$(Agent.BuildDirectory)\s\$(folderRepository)\SystrayComponent\SystrayComponent.csproj'
-    platform: $(buildPlatform)
-    configuration: $(buildConfiguration)
-  displayName: 'Building Win32 App'
-
-- task: VSBuild@1
-  inputs:
-    solution: $(Agent.BuildDirectory)\s\$(folderRepository)\PackageManager\PackageManager.wapproj
-    platform: $(buildPlatform)
-    configuration: $(buildConfiguration)
-    msbuildArguments: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Never /p:UapAppxPackageBuildMode=StoreAndSideload /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$(signingCert.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-  displayName: 'Package the App'
-
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**\bin\$(BuildConfiguration)\**'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
+  value: 'Release'
+- name: 'msixInstallUrl'
+  value: http://localhost:8080
+- name: 'packageVersion'
+  value: 1.0.0
+- name: 'packageName'
+  value: 'Terminal'
+jobs:
+- job: BuildMSIX
+  steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        [xml]$manifest= get-content "Terminal\Package.appxmanifest"
+        $manifest.Package.Identity.Version = "$(packageVersion).$(Build.BuildId)"
+        $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageIdSuffix)"
+        $manifest.Package.Properties.DisplayName = "$(packageName)$(packageNameSuffix)"
+        $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)$(packageNameSuffix)"
+        $manifest.save("Terminal\Package.appxmanifest")
+  - task: DownloadSecureFile@1
+    name: mySecureFile
+    displayName: 'Download CA certificate'
+    inputs:
+      secureFile: 'Terminal_TemporaryKey.pfx'
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "Start adding the PFX file to the certificate store."
+        $pfxpath = '$(mySecureFile.secureFilePath)'
+        $password = '$(password)'
+        echo '$(mySecureFile.secureFilePath)'
+        echo '$(password)'
+        Add-Type -AssemblyName System.Security
+        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+        $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
+        $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+        $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+        $store.Add($cert)
+        $store.Close()
+    displayName: 'Install PFX File'
+  - task: VSBuild@1
+    inputs:
+      solution: '$(solution)'
+      msbuildArgs: '/restore /p:AppInstallerUri="$(msixInstallUrl)/" /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/" /p:UapAppxPackageBuildMode=StoreAndSideload /p:GenerateAppInstallerFile=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$(mySecureFile.secureFilePath)" /p:PackageCertificatePassword="$(password)"'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+  #- task: Docker@2
+  #  inputs:
+  #    command: 'build'
+  #    Dockerfile: '**/Dockerfile'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
