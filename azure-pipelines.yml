@@ -67,7 +67,7 @@ jobs:
       script: |
         [xml]$appInst = get-content "$(Build.ArtifactStagingDirectory)\Terminal.appinstaller"
         $appInst.AppInstaller.UpdateSettings.OnLaunch.HoursBetweenUpdateChecks="1"
-        $appInst.save("$(Build.ArtifactStagingDirectory)\Terminal.appinstaller")
+        $appInst.save("$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller")
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
