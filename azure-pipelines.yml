@@ -1,9 +1,7 @@
 trigger:
 - master
-
 pool:
   vmImage: 'windows-latest'
-
 variables:
 - group: 'Certificate'
 - name: 'solution'
@@ -18,8 +16,7 @@ variables:
   value: 1.0.0
 - name: 'packageName'
   value: 'Terminal'
-
-jobs: 
+jobs:
 - job: BuildMSIX
   steps:
   - task: PowerShell@2
@@ -28,17 +25,15 @@ jobs:
       script: |
         [xml]$manifest= get-content "Terminal\Package.appxmanifest"
         $manifest.Package.Identity.Version = "$(packageVersion).$(Build.BuildId)"
-        $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageVersion).$(Build.BuildId)"
-        $manifest.Package.Properties.DisplayName = "$(packageName))"
-        $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)"
+        $manifest.Package.Identity.Name = "demo-864d9095-955f-4d3c-adb0-6574a5acb88b$(packageIdSuffix)"
+        $manifest.Package.Properties.DisplayName = "$(packageName)$(packageNameSuffix)"
+        $manifest.Package.Applications.Application.VisualElements.DisplayName = "$(packageName)$(packageNameSuffix)"
         $manifest.save("Terminal\Package.appxmanifest")
-
   - task: DownloadSecureFile@1
     name: mySecureFile
     displayName: 'Download CA certificate'
     inputs:
       secureFile: 'Terminal_TemporaryKey.pfx'
-  
   - task: PowerShell@2
     inputs:
       targetType: 'inline'
@@ -56,19 +51,16 @@ jobs:
         $store.Add($cert)
         $store.Close()
     displayName: 'Install PFX File'
-
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
       msbuildArgs: '/restore /p:AppInstallerUri="$(msixInstallUrl)/" /p:AppxPackageDir="$(Build.ArtifactStagingDirectory)/" /p:UapAppxPackageBuildMode=StoreAndSideload /p:GenerateAppInstallerFile=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$(mySecureFile.secureFilePath)" /p:PackageCertificatePassword="$(password)"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-
   #- task: Docker@2
   #  inputs:
   #    command: 'build'
   #    Dockerfile: '**/Dockerfile'
-
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
