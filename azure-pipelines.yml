@@ -71,7 +71,7 @@ jobs:
         [xml]$appInst = get-content "$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller"
         $appInst.AppInstaller.UpdateSettings.OnLaunch.HoursBetweenUpdateChecks="1"
         $appInst.save("$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller")
-
+  # И придется мутить вот такой вот обход бага
   - task: PowerShell@2
     inputs:
       targetType: 'inline'
