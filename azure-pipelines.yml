@@ -34,18 +34,6 @@ jobs:
     displayName: 'Download CA certificate'
     inputs:
       secureFile: 'Terminal_TemporaryKey.pfx'
-  
-  - task: PowerShell@2
-    inputs:
-      targetType: 'inline'
-      script: |
-        $size=(Get-Item "$($args[0])").length
-        Write-Host $size
-        $padSize=2000 - $size
-        Write-Host padding with $padSize
-        $padString = "".PadRight($padSize)
-        Add-Content "$($args[0])" $padString -NoNewline
-    displayName: 'Cringe'
 
   - task: PowerShell@2
     inputs:
@@ -81,6 +69,19 @@ jobs:
         [xml]$appInst = get-content "$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller"
         $appInst.AppInstaller.UpdateSettings.OnLaunch.HoursBetweenUpdateChecks="1"
         $appInst.save("$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller")
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        $size=(Get-Item "$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller").length
+        echo $size
+        Write-Host $size
+        $padSize=2000 - $size
+        Write-Host padding with $padSize
+        $padString = "".PadRight($padSize)
+        Add-Content "$(Build.ArtifactStagingDirectory)\Terminal_x64.appinstaller" $padString -NoNewline
+    displayName: 'Cringe'
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
